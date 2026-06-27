@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Bíblia Ensina</title>
+    <style>
+        :root {
+            --bg-principal: #ffffff;
+            --bg-card: #f8fafc;
+            --border-color: #e2e8f0;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --azul-google: #1a73e8;
+            --azul-google-dark: #1557b0;
+            --azul-claro-bg: #e8f0fe;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--bg-principal);
+            color: var(--text-primary);
+            min-height: 100vh;
+            padding: 16px;
+            padding-bottom: 40px;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 20px;
+            padding: 8px;
+        }
+
+        header h1 {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        /* Abas de Navegação Estilo Google */
+        .tabs {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4px;
+            margin-bottom: 20px;
+            background: #f1f3f4;
+            padding: 4px;
+            border-radius: 8px;
+        }
+
+        .tab-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            padding: 10px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .tab-btn.active {
+            background: var(--bg-principal);
+            color: var(--azul-google);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .view-section {
+            display: none;
+        }
+
+        .view-section.active {
+            display: block;
+        }
+
+        /* Lista de Perguntas Expandível */
+        .question-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            margin-bottom: 10px;
+            overflow: hidden;
+        }
+
+        .question-header {
+            padding: 16px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .question-header::after {
+            content: '➔';
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            transition: transform 0.2s;
+        }
+
+        .question-card.open .question-header::after {
+            transform: rotate(90deg);
+        }
+
+        .question-content {
+            display: none;
+            padding: 16px;
+            background: #ffffff;
+            border-top: 1px solid var(--border-color);
+            font-size: 0.9rem;
+            line-height: 1.5;
+            color: var(--text-secondary);
+        }
+
+        .question-card.open .question-content {
+            display: block;
+        }
+
+        /* Títulos de Divisão das Escrituras */
+        .section-title {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-secondary);
+            margin: 24px 0 12px 4px;
+            font-weight: 700;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 4px;
+        }
+
+        /* Mecanismo de Grade (Grid) com Azul Google */
+        .bible-grid {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 6px;
+            margin-bottom: 16px;
+        }
+
+        .grid-item {
+            background-color: var(--azul-google);
+            border: 1px solid var(--azul-google-dark);
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.85rem;
+            font-weight: 600;
+            border-radius: 4px;
+            color: #ffffff;
+            cursor: pointer;
+            transition: background-color 0.15s ease, transform 0.1s ease;
+        }
+
+        .grid-item:active {
+            background-color: var(--azul-google-dark);
+            transform: scale(0.95);
+        }
+
+        /* Interface de Capítulos Internos */
+        .navigation-back {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            color: var(--azul-google);
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 16px;
+            cursor: pointer;
+            background: transparent;
+            border: none;
+        }
+
+        .chapters-grid {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 6px;
+            margin-bottom: 24px;
+        }
+
+        .chapter-item {
+            background: var(--azul-claro-bg);
+            border: 1px solid #d2e3fc;
+            color: var(--azul-google-dark);
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .chapter-item:active {
+            background: var(--azul-google);
+            color: #ffffff;
+        }
+
+        .summary-box {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 16px;
+        }
+
+        .summary-title {
+            font-size: 1rem;
+            margin-bottom: 12px;
+            color: var(--text-primary);
+            font-weight: 700;
+        }
+
+        .summary-item {
+            margin-bottom: 10px;
+            font-size: 0.9rem;
+            line-height: 1.4;
+            color: var(--text-primary);
+        }
+
+        .summary-num {
+            font-weight: 700;
+            color: var(--azul-google);
+            margin-right: 6px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1 id="main-title">Bíblia Ensina</h1>
+    </header>
+
+    <div class="tabs" id="main-tabs">
+        <button class="tab-btn active" onclick="switchView('perguntas')">20 Perguntas</button>
+        <button class="tab-btn" onclick="switchView('indice')">Livros da Bíblia</button>
+    </div>
+
+    <!-- VISÃO 1: 20 PERGUNTAS -->
+    <div id="view-perguntas" class="view-section active">
+        <div id="questions-container"></div>
+    </div>
+
+    <!-- VISÃO 2: ÍNDICE EM GRADE BRANCO E AZUL GOOGLE -->
+    <div id="view-indice" class="view-section">
+        <div class="section-title">Escrituras Hebraico-Aramaicas</div>
+        <div class="bible-grid" id="grid-hebraicas"></div>
+
+        <div class="section-title">Escrituras Gregas Cristãs</div>
+        <div class="bible-grid" id="grid-gregas"></div>
+    </div>
+
+    <!-- VISÃO 3: SELEÇÃO DE CAPÍTULOS -->
+    <div id="view-livro" class="view-section">
+        <button class="navigation-back" onclick="switchView('indice')">← Voltar aos Livros</button>
+        <h2 id="selected-book-title" style="margin-bottom: 16px; font-size: 1.3rem;">O Livro de Gênesis</h2>
+        
+        <div class="section-title">Capítulos</div>
+        <div class="chapters-grid" id="book-chapters-grid"></div>
+
+        <div class="summary-box">
+            <div class="summary-title">Conteúdo do Livro</div>
+            <div id="book-summary-content"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const perguntasData = [
+        { id: 1, q: "Como podemos saber o que o futuro nos reserva?", a: "A Bíblia responde em Isaías 46:10, mostrando que Deus conhece o fim desde o princípio." },
+        { id: 2, q: "Será que Deus realmente se importa conosco?", a: "Sim, 1 Pedro 5:7 diz para lançarmos nossa ansiedade sobre Ele, porque Ele cuida de nós." },
+        { id: 3, q: "Quem é Deus?", a: "Seu nome é Jeová (Salmo 83:18) e Ele é o Criador de todas as coisas." },
+        { id: 4, q: "Jesus Cristo é o próprio Deus?", a: "Não, Jesus se identificou como o Filho de Deus (João 3:16) enviado à Terra." },
+        { id: 5, q: "Qual é o objetivo de Deus para a Terra?", a: "Transformar a Terra em um paraíso onde os justos viverão para sempre (Salmo 37:29)." }
+    ];
+
+    // Estrutura inicial para renderizar a grade
+    const livrosHebraicas = [
+        { abr: "Gên", nome: "Gênesis", caps: 50, resumo: { 1: "Criação dos céus e da terra", 2: "O jardim do Éden" } },
+        { abr: "Êx", nome: "Êxodo", caps: 40, resumo: { 1: "Aflição no Egito", 2: "Moisés é salvo" } },
+        { abr: "Le", nome: "Levítico", caps: 27, resumo: { 1: "Oferta queimada", 2: "Oferta de cereais" } },
+        { abr: "Núm", nome: "Números", caps: 36, resumo: {} },
+        { abr: "De", nome: "Deuteronômio", caps: 34, resumo: {} },
+        { abr: "Jos", nome: "Josué", caps: 24, resumo: {} }
+    ];
+
+    const livrosGregas = [
+        { abr: "Mt", nome: "Mateus", caps: 28, resumo: { 1: "Genealogia de Jesus", 2: "Visita dos astrólogos" } },
+        { abr: "Mr", nome: "Marcos", caps: 16, resumo: {} },
+        { abr: "Lu", nome: "Lucas", caps: 24, resumo: {} },
+        { abr: "Jo", nome: "João", caps: 21, resumo: {} },
+        { abr: "At", nome: "Atos", caps: 28, resumo: {} },
+        { abr: "Ro", nome: "Romanos", caps: 16, resumo: {} },
+        { abr: "Ap", nome: "Apocalipse", caps: 22, resumo: { 1: "Revelação de Jesus", 21: "Novo céu e nova terra" } }
+    ];
+
+    function init() {
+        renderPerguntas();
+        renderGrade(livrosHebraicas, 'grid-hebraicas');
+        renderGrade(livrosGregas, 'grid-gregas');
+    }
+
+    function renderPerguntas() {
+        const container = document.getElementById('questions-container');
+        container.innerHTML = perguntasData.map(p => `
+            <div class="question-card" onclick="toggleQuestion(this)">
+                <div class="question-header">${p.id}. ${p.q}</div>
+                <div class="question-content">${p.a}</div>
+            </div>
+        `).join('');
+    }
+
+    function toggleQuestion(element) {
+        element.classList.toggle('open');
+    }
+
+    function renderGrade(livros, targetId) {
+        const grid = document.getElementById(targetId);
+        grid.innerHTML = livros.map(livro => `
+            <div class="grid-item" onclick="openBook('${encodeURIComponent(JSON.stringify(livro))}')">${livro.abr}</div>
+        `).join('');
+    }
+
+    function switchView(viewName) {
+        document.querySelectorAll('.view-section').forEach(v => v.classList.remove('active'));
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        
+        const tabsElement = document.getElementById('main-tabs');
+        
+        if (viewName === 'perguntas') {
+            document.getElementById('view-perguntas').classList.add('active');
+            document.querySelectorAll('.tab-btn')[0].classList.add('active');
+            tabsElement.style.display = 'grid';
+        } else if (viewName === 'indice') {
+            document.getElementById('view-indice').classList.add('active');
+            document.querySelectorAll('.tab-btn')[1].classList.add('active');
+            tabsElement.style.display = 'grid';
+        } else if (viewName === 'livro') {
+            document.getElementById('view-livro').classList.add('active');
+            tabsElement.style.display = 'none';
+        }
+    }
+
+    function openBook(livroDataJson) {
+        const libro = JSON.parse(decodeURIComponent(livroDataJson));
+        document.getElementById('selected-book-title').innerText = `O Livro de ${libro.nome}`;
+        
+        const capsGrid = document.getElementById('book-chapters-grid');
+        capsGrid.innerHTML = '';
+        for (let i = 1; i <= libro.caps; i++) {
+            const capBtn = document.createElement('div');
+            capBtn.className = 'chapter-item';
+            capBtn.innerText = i;
+            capsGrid.appendChild(capBtn);
+        }
+
+        const summaryContent = document.getElementById('book-summary-content');
+        if (Object.keys(libro.resumo).length > 0) {
+            summaryContent.innerHTML = Object.entries(libro.resumo).map(([cap, text]) => `
+                <div class="summary-item">
+                    <span class="summary-num">${cap}</span> ${text}
+                </div>
+            `).join('');
+        } else {
+            summaryContent.innerHTML = `<div style="color: var(--text-secondary); font-size: 0.9rem;">Conteúdo sendo estruturado em breve...</div>`;
+        }
+
+        switchView('livro');
+    }
+
+    window.onload = init;
+</script>
+</body>
+</html>
