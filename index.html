@@ -235,6 +235,29 @@
             color: var(--azul-google);
             margin-right: 6px;
         }
+
+        /* VISÃO 4: LEITOR DE VERSÍCULOS */
+        .verses-container {
+            margin-top: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .verse-row {
+            font-size: 1.05rem;
+            line-height: 1.6;
+            color: var(--text-primary);
+            text-align: justify;
+        }
+
+        .verse-number {
+            font-weight: 700;
+            color: var(--azul-google);
+            font-size: 0.85rem;
+            vertical-align: super;
+            margin-right: 4px;
+        }
     </style>
 </head>
 <body>
@@ -251,7 +274,7 @@
 
     <!-- VISÃO 1: 20 PERGUNTAS -->
     <div id="view-perguntas" class="view-section active">
-        <div id="questions-container"></div>
+        <div id="questions-container">Carregando perguntas...</div>
     </div>
 
     <!-- VISÃO 2: ÍNDICE EM GRADE BRANCO E AZUL GOOGLE -->
@@ -276,105 +299,119 @@
             <div id="book-summary-content"></div>
         </div>
     </div>
+
+    <!-- VISÃO 4: LEITOR DE VERSÍCULOS INTERNOS -->
+    <div id="view-leitor" class="view-section">
+        <button class="navigation-back" id="btn-voltar-capitulos">← Voltar aos Capítulos</button>
+        <h2 id="leitor-titulo-capitulo" style="margin-bottom: 20px; font-size: 1.3rem; color: var(--azul-google);">Gênesis 1</h2>
+        <div class="verses-container" id="verses-content"></div>
+    </div>
 </div>
 
 <script>
-    const perguntasData = [
-        { id: 1, q: "Como podemos saber o que o futuro nos reserva?", a: "A Bíblia responde em Isaías 46:10, mostrando que Deus conhece o fim desde o princípio." },
-        { id: 2, q: "Será que Deus realmente se importa conosco?", a: "Sim, 1 Pedro 5:7 diz para lançarmos nossa ansiedade sobre Ele, porque Ele cuida de nós." },
-        { id: 3, q: "Quem é Deus?", a: "Seu nome é Jeová (Salmo 83:18) e Ele é o Criador de todas as coisas." },
-        { id: 4, q: "Jesus Cristo é o próprio Deus?", a: "Não, Jesus se identificou como o Filho de Deus (João 3:16) enviado à Terra." },
-        { id: 5, q: "Qual é o objetivo de Deus para a Terra?", a: "Transformar a Terra em um paraíso onde os justos viverão para sempre (Salmo 37:29)." }
-    ];
+    // Variáveis globais para controlar o estado do livro ativo
+    let livroAtualObjeto = null;
 
     // Coleção completa dos 39 Livros das Escrituras Hebraico-Aramaicas
     const livrosHebraicas = [
-        { abr: "Gên", nome: "Gênesis", caps: 50, resumo: { 1: "Criação dos céus e da terra", 2: "O jardim do Éden" } },
-        { abr: "Êx", nome: "Êxodo", caps: 40, resumo: { 1: "Aflição no Egito", 2: "Moisés é salvo" } },
-        { abr: "Le", nome: "Levítico", caps: 27, resumo: { 1: "Oferta queimada", 2: "Oferta de cereais" } },
-        { abr: "Núm", nome: "Números", caps: 36, resumo: {} },
-        { abr: "De", nome: "Deuteronômio", caps: 34, resumo: {} },
-        { abr: "Jos", nome: "Josué", caps: 24, resumo: {} },
-        { abr: "Jui", nome: "Juízes", caps: 21, resumo: {} },
-        { abr: "Rut", nome: "Rute", caps: 4, resumo: {} },
-        { abr: "1Sa", nome: "1 Samuel", caps: 31, resumo: {} },
-        { abr: "2Sa", nome: "2 Samuel", caps: 24, resumo: {} },
-        { abr: "1Re", nome: "1 Reis", caps: 22, resumo: {} },
-        { abr: "2Re", nome: "2 Reis", caps: 25, resumo: {} },
-        { abr: "1Cr", nome: "1 Crônicas", caps: 29, resumo: {} },
-        { abr: "2Cr", nome: "2 Crônicas", caps: 36, resumo: {} },
-        { abr: "Esd", nome: "Esdras", caps: 10, resumo: {} },
-        { abr: "Ne", nome: "Neemias", caps: 13, resumo: {} },
-        { abr: "Est", nome: "Ester", caps: 10, resumo: {} },
-        { abr: "Jó", nome: "Jó", caps: 42, resumo: {} },
-        { abr: "Sal", nome: "Salmos", caps: 150, resumo: {} },
-        { abr: "Pro", nome: "Provérbios", caps: 31, resumo: {} },
-        { abr: "Ec", nome: "Eclesiastes", caps: 12, resumo: {} },
-        { abr: "Cân", nome: "Cântico de Salomão", caps: 8, resumo: {} },
-        { abr: "Isa", nome: "Isaías", caps: 66, resumo: {} },
-        { abr: "Jer", nome: "Jeremias", caps: 52, resumo: {} },
-        { abr: "Lam", nome: "Lamentações", caps: 5, resumo: {} },
-        { abr: "Eze", nome: "Ezequiel", caps: 48, resumo: {} },
-        { abr: "Dan", nome: "Daniel", caps: 12, resumo: {} },
-        { abr: "Os", nome: "Oseias", caps: 14, resumo: {} },
-        { abr: "Jl", nome: "Joel", caps: 3, resumo: {} },
-        { abr: "Am", nome: "Amós", caps: 9, resumo: {} },
-        { abr: "Ob", nome: "Obadias", caps: 1, resumo: {} },
-        { abr: "Jon", nome: "Jonas", caps: 4, resumo: {} },
-        { abr: "Mi", nome: "Miqueias", caps: 7, resumo: {} },
-        { abr: "Na", nome: "Naum", caps: 3, resumo: {} },
-        { abr: "Hab", nome: "Habacuque", caps: 3, resumo: {} },
-        { abr: "Sof", nome: "Sofonias", caps: 3, resumo: {} },
-        { abr: "Ag", nome: "Ageu", caps: 2, resumo: {} },
-        { abr: "Za", nome: "Zacarias", caps: 14, resumo: {} },
-        { abr: "Mal", nome: "Malaquias", caps: 4, resumo: {} }
+        { abr: "Gên", nome: "Gênesis", arquivo: "genesis", caps: 50, resumo: { 1: "Criação dos céus e da terra", 2: "O jardim do Éden" } },
+        { abr: "Êx", nome: "Êxodo", arquivo: "exodo", caps: 40, resumo: {} },
+        { abr: "Le", nome: "Levítico", arquivo: "levitico", caps: 27, resumo: {} },
+        { abr: "Núm", nome: "Números", arquivo: "numeros", caps: 36, resumo: {} },
+        { abr: "De", nome: "Deuteronômio", arquivo: "deuteronomio", caps: 34, resumo: {} },
+        { abr: "Jos", nome: "Josué", arquivo: "josue", caps: 24, resumo: {} },
+        { abr: "Jui", nome: "Juízes", arquivo: "juizes", caps: 21, resumo: {} },
+        { abr: "Rut", nome: "Rute", arquivo: "rute", caps: 4, resumo: {} },
+        { abr: "1Sa", nome: "1 Samuel", arquivo: "1samuel", caps: 31, resumo: {} },
+        { abr: "2Sa", nome: "2 Samuel", arquivo: "2samuel", caps: 24, resumo: {} },
+        { abr: "1Re", nome: "1 Reis", arquivo: "1reis", caps: 22, resumo: {} },
+        { abr: "2Re", nome: "2 Reis", arquivo: "2reis", caps: 25, resumo: {} },
+        { abr: "1Cr", nome: "1 Crônicas", arquivo: "1cronicas", caps: 29, resumo: {} },
+        { abr: "2Cr", nome: "2 Crônicas", arquivo: "2cronicas", caps: 36, resumo: {} },
+        { abr: "Esd", nome: "Esdras", arquivo: "esdras", caps: 10, resumo: {} },
+        { abr: "Ne", nome: "Neemias", arquivo: "neemias", caps: 13, resumo: {} },
+        { abr: "Est", nome: "Ester", arquivo: "ester", caps: 10, resumo: {} },
+        { abr: "Jó", nome: "Jó", arquivo: "jo", caps: 42, resumo: {} },
+        { abr: "Sal", nome: "Salmos", arquivo: "salmos", caps: 150, resumo: {} },
+        { abr: "Pro", nome: "Provérbios", arquivo: "proverbios", caps: 31, resumo: {} },
+        { abr: "Ec", nome: "Eclesiastes", arquivo: "eclesiastes", caps: 12, resumo: {} },
+        { abr: "Cân", nome: "Cântico", arquivo: "cantico", caps: 8, resumo: {} },
+        { abr: "Isa", nome: "Isaías", arquivo: "isaias", caps: 66, resumo: {} },
+        { abr: "Jer", nome: "Jeremias", arquivo: "jeremias", caps: 52, resumo: {} },
+        { abr: "Lam", nome: "Lamentações", arquivo: "lamentacoes", caps: 5, resumo: {} },
+        { abr: "Eze", nome: "Ezequiel", arquivo: "ezequiel", caps: 48, resumo: {} },
+        { abr: "Dan", nome: "Daniel", arquivo: "daniel", caps: 12, resumo: {} },
+        { abr: "Os", nome: "Oseias", arquivo: "oseias", caps: 14, resumo: {} },
+        { abr: "Jl", nome: "Joel", arquivo: "joel", caps: 3, resumo: {} },
+        { abr: "Am", nome: "Amós", arquivo: "amos", caps: 9, resumo: {} },
+        { abr: "Ob", nome: "Obadias", arquivo: "obadias", caps: 1, resumo: {} },
+        { abr: "Jon", nome: "Jonas", arquivo: "jonas", caps: 4, resumo: {} },
+        { abr: "Mi", nome: "Miqueias", arquivo: "miqueias", caps: 7, resumo: {} },
+        { abr: "Na", nome: "Naum", arquivo: "naum", caps: 3, resumo: {} },
+        { abr: "Hab", nome: "Habacuque", arquivo: "habacuque", caps: 3, resumo: {} },
+        { abr: "Sof", nome: "Sofonias", arquivo: "sofonias", caps: 3, resumo: {} },
+        { abr: "Ag", nome: "Ageu", arquivo: "ageu", caps: 2, resumo: {} },
+        { abr: "Za", nome: "Zacarias", arquivo: "zacarias", caps: 14, resumo: {} },
+        { abr: "Mal", nome: "Malaquias", arquivo: "malaquias", caps: 4, resumo: {} }
     ];
 
     // Coleção completa dos 27 Livros das Escrituras Gregas Cristãs
     const livrosGregas = [
-        { abr: "Mt", nome: "Mateus", caps: 28, resumo: { 1: "Genealogia de Jesus", 2: "Visita dos astrólogos" } },
-        { abr: "Mr", nome: "Marcos", caps: 16, resumo: {} },
-        { abr: "Lu", nome: "Lucas", caps: 24, resumo: {} },
-        { abr: "Jo", nome: "João", caps: 21, resumo: {} },
-        { abr: "At", nome: "Atos", caps: 28, resumo: {} },
-        { abr: "Ro", nome: "Romanos", caps: 16, resumo: {} },
-        { abr: "1Co", nome: "1 Coríntios", caps: 16, resumo: {} },
-        { abr: "2Co", nome: "2 Coríntios", caps: 13, resumo: {} },
-        { abr: "Gá", nome: "Gálatas", caps: 6, resumo: {} },
-        { abr: "Ef", nome: "Efésios", caps: 6, resumo: {} },
-        { abr: "Fil", nome: "Filipenses", caps: 4, resumo: {} },
-        { abr: "Col", nome: "Colossenses", caps: 4, resumo: {} },
-        { abr: "1Te", nome: "1 Tessalonicenses", caps: 5, resumo: {} },
-        { abr: "2Te", nome: "2 Tessalonicenses", caps: 3, resumo: {} },
-        { abr: "1Ti", nome: "1 Timóteo", caps: 6, resumo: {} },
-        { abr: "2Ti", nome: "2 Timóteo", caps: 4, resumo: {} },
-        { abr: "Tit", nome: "Tito", caps: 3, resumo: {} },
-        { abr: "Fm", nome: "Filêmon", caps: 1, resumo: {} },
-        { abr: "Heb", nome: "Hebreus", caps: 13, resumo: {} },
-        { abr: "Tia", nome: "Tiago", caps: 5, resumo: {} },
-        { abr: "1Pe", nome: "1 Pedro", caps: 5, resumo: {} },
-        { abr: "2Pe", nome: "2 Pedro", caps: 3, resumo: {} },
-        { abr: "1Jo", nome: "1 João", caps: 5, resumo: {} },
-        { abr: "2Jo", nome: "2 João", caps: 1, resumo: {} },
-        { abr: "3Jo", nome: "3 João", caps: 1, resumo: {} },
-        { abr: "Jud", nome: "Judas", caps: 1, resumo: {} },
-        { abr: "Ap", nome: "Apocalipse", caps: 22, resumo: { 1: "Revelação de Jesus", 21: "Novo céu e nova terra" } }
+        { abr: "Mt", nome: "Mateus", arquivo: "mateus", caps: 28, resumo: { 1: "Genealogia de Jesus", 2: "Visita dos astrólogos" } },
+        { abr: "Mr", nome: "Marcos", arquivo: "marcos", caps: 16, resumo: {} },
+        { abr: "Lu", nome: "Lucas", arquivo: "lucas", caps: 24, resumo: {} },
+        { abr: "Jo", nome: "João", arquivo: "joao", caps: 21, resumo: {} },
+        { abr: "At", nome: "Atos", arquivo: "atos", caps: 28, resumo: {} },
+        { abr: "Ro", nome: "Romanos", arquivo: "romanos", caps: 16, resumo: {} },
+        { abr: "1Co", nome: "1 Coríntios", arquivo: "1corintios", caps: 16, resumo: {} },
+        { abr: "2Co", nome: "2 Coríntios", arquivo: "2corintios", caps: 13, resumo: {} },
+        { abr: "Gá", nome: "Gálatas", arquivo: "galatas", caps: 6, resumo: {} },
+        { abr: "Ef", nome: "Efésios", arquivo: "efesios", caps: 6, resumo: {} },
+        { abr: "Fil", nome: "Filipenses", arquivo: "filipenses", caps: 4, resumo: {} },
+        { abr: "Col", nome: "Colossenses", arquivo: "colossenses", caps: 4, resumo: {} },
+        { abr: "1Te", nome: "1 Tessalonicenses", arquivo: "1tessalonicenses", caps: 5, resumo: {} },
+        { abr: "2Te", nome: "2 Tessalonicenses", arquivo: "2tessalonicenses", caps: 3, resumo: {} },
+        { abr: "1Ti", nome: "1 Timóteo", arquivo: "1timoteo", caps: 6, resumo: {} },
+        { abr: "2Ti", nome: "2 Timóteo", arquivo: "2timoteo", caps: 4, resumo: {} },
+        { abr: "Tit", nome: "Tito", arquivo: "tito", caps: 3, resumo: {} },
+        { abr: "Fm", nome: "Filêmon", arquivo: "filemon", caps: 1, resumo: {} },
+        { abr: "Heb", nome: "Hebreus", arquivo: "hebreus", caps: 13, resumo: {} },
+        { abr: "Tia", nome: "Tiago", arquivo: "tiago", caps: 5, resumo: {} },
+        { abr: "1Pe", nome: "1 Pedro", arquivo: "1pedro", caps: 5, resumo: {} },
+        { abr: "2Pe", nome: "2 Pedro", arquivo: "2pedro", caps: 3, resumo: {} },
+        { abr: "1Jo", nome: "1 João", arquivo: "1joao", caps: 5, resumo: {} },
+        { abr: "2Jo", nome: "2 João", arquivo: "2joao", caps: 1, resumo: {} },
+        { abr: "3Jo", nome: "3 João", arquivo: "3joao", caps: 1, resumo: {} },
+        { abr: "Jud", nome: "Judas", arquivo: "judas", caps: 1, resumo: {} },
+        { abr: "Ap", nome: "Apocalipse", arquivo: "apocalipse", caps: 22, resumo: { 1: "Revelação de Jesus", 21: "Novo céu e nova terra" } }
     ];
 
     function init() {
-        renderPerguntas();
+        carregarPerguntasJSON();
         renderGrade(livrosHebraicas, 'grid-hebraicas', 'hebraicas');
         renderGrade(livrosGregas, 'grid-gregas', 'gregas');
     }
 
-    function renderPerguntas() {
+    // Carrega assincronamente o arquivo perguntas.json localizado na pasta data/
+    function carregarPerguntasJSON() {
         const container = document.getElementById('questions-container');
-        container.innerHTML = perguntasData.map(p => `
-            <div class="question-card" onclick="toggleQuestion(this)">
-                <div class="question-header">${p.id}. ${p.q}</div>
-                <div class="question-content">${p.a}</div>
-            </div>
-        `).join('');
+        fetch('data/perguntas.json')
+            .then(response => {
+                if (!response.ok) throw new Error('Arquivo de perguntas não encontrado');
+                return response.json();
+            })
+            .then(data => {
+                container.innerHTML = data.map(p => `
+                    <div class="question-card" onclick="toggleQuestion(this)">
+                        <div class="question-header">${p.id}. ${p.q}</div>
+                        <div class="question-content">${p.a}</div>
+                    </div>
+                `).join('');
+            })
+            .catch(error => {
+                console.log(error);
+                container.innerHTML = `<div style="padding:16px; color:var(--text-secondary);">Crie o arquivo data/perguntas.json para ver as 20 perguntas.</div>`;
+            });
     }
 
     function toggleQuestion(element) {
@@ -405,37 +442,80 @@
         } else if (viewName === 'livro') {
             document.getElementById('view-livro').classList.add('active');
             tabsElement.style.display = 'none';
+        } else if (viewName === 'leitor') {
+            document.getElementById('view-leitor').classList.add('active');
+            tabsElement.style.display = 'none';
         }
     }
 
     function openBook(tipo, index) {
-        const libro = tipo === 'hebraicas' ? livrosHebraicas[index] : livrosGregas[index];
-        document.getElementById('selected-book-title').innerText = `O Livro de ${libro.nome}`;
+        livroAtualObjeto = tipo === 'hebraicas' ? livrosHebraicas[index] : livrosGregas[index];
+        document.getElementById('selected-book-title').innerText = `O Livro de ${livroAtualObjeto.nome}`;
         
         const capsGrid = document.getElementById('book-chapters-grid');
         capsGrid.innerHTML = '';
-        for (let i = 1; i <= libro.caps; i++) {
+        
+        for (let i = 1; i <= livroAtualObjeto.caps; i++) {
             const capBtn = document.createElement('div');
             capBtn.className = 'chapter-item';
             capBtn.innerText = i;
+            capBtn.onclick = () => carregarCapitulo(i);
             capsGrid.appendChild(capBtn);
         }
 
         const summaryContent = document.getElementById('book-summary-content');
-        if (libro.resumo && Object.keys(libro.resumo).length > 0) {
-            summaryContent.innerHTML = Object.entries(libro.resumo).map(([cap, text]) => `
+        if (livroAtualObjeto.resumo && Object.keys(livroAtualObjeto.resumo).length > 0) {
+            summaryContent.innerHTML = Object.entries(livroAtualObjeto.resumo).map(([cap, text]) => `
                 <div class="summary-item">
                     <span class="summary-num">${cap}</span> ${text}
                 </div>
             `).join('');
         } else {
-            summaryContent.innerHTML = `<div style="color: var(--text-secondary); font-size: 0.9rem;">Conteúdo sendo estruturado em breve...</div>`;
+            summaryContent.innerHTML = `<div style="color: var(--text-secondary); font-size: 0.9rem;">Resumo sendo estruturado...</div>`;
         }
 
         switchView('livro');
     }
 
+    // Carrega dinamicamente os versículos do JSON correspondente de dentro de data/livros/
+    function carregarCapitulo(numeroCapitulo) {
+        document.getElementById('leitor-titulo-capitulo').innerText = `${livroAtualObjeto.nome} ${numeroCapitulo}`;
+        const versesContent = document.getElementById('verses-content');
+        versesContent.innerHTML = `<div style="color: var(--text-secondary);">Carregando versículos...</div>`;
+        
+        // Define o botão voltar da Visão 4 para retornar com segurança à Visão 3 do respectivo livro
+        document.getElementById('btn-voltar-capitulos').onclick = () => switchView('livro');
+
+        fetch(`data/livros/${livroAtualObjeto.arquivo}.json`)
+            .then(response => {
+                if (!response.ok) throw new Error('Arquivo de texto não encontrado');
+                return response.json();
+            })
+            .then(dadosLivro => {
+                // Procura o capítulo dentro do arquivo JSON estruturado
+            const capituloData = dadosLivro.capitulos[numeroCapitulo];
+                if (capituloData && capituloData.length > 0) {
+                    versesContent.innerHTML = capituloData.map(v => `
+                        <div class="verse-row">
+                            <span class="verse-number">${v.v}</span>${v.texto}
+                        </div>
+                    `).join('');
+                } else {
+                    versesContent.innerHTML = `<div style="color: var(--text-secondary);">Capítulo não encontrado neste arquivo.</div>`;
+                }
+            })
+            .catch(error => {
+                console.log(error);
+                versesContent.innerHTML = `
+                    <div style="color: var(--text-secondary); font-size: 0.95rem; line-height: 1.5;">
+                        O arquivo <strong>data/livros/${livroAtualObjeto.arquivo}.json</strong> ainda não foi criado ou está vazio no seu repositório.
+                    </div>`;
+            });
+
+        switchView('leitor');
+    }
+
     window.onload = init;
 </script>
 </body>
-</html>
+</html>    
