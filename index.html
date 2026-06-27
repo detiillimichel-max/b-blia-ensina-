@@ -236,27 +236,12 @@
             margin-right: 6px;
         }
 
-        /* VISÃO 4: LEITOR DE VERSÍCULOS */
+        /* VISÃO 4: LEITOR DE VERSÍCULOS / RENDERIZADOR PDF */
         .verses-container {
             margin-top: 16px;
             display: flex;
             flex-direction: column;
             gap: 14px;
-        }
-
-        .verse-row {
-            font-size: 1.05rem;
-            line-height: 1.6;
-            color: var(--text-primary);
-            text-align: justify;
-        }
-
-        .verse-number {
-            font-weight: 700;
-            color: var(--azul-google);
-            font-size: 0.85rem;
-            vertical-align: super;
-            margin-right: 4px;
         }
     </style>
 </head>
@@ -272,12 +257,10 @@
         <button class="tab-btn" onclick="switchView('indice')">Livros da Bíblia</button>
     </div>
 
-    <!-- VISÃO 1: 20 PERGUNTAS -->
     <div id="view-perguntas" class="view-section active">
         <div id="questions-container">Carregando perguntas...</div>
     </div>
 
-    <!-- VISÃO 2: ÍNDICE EM GRADE BRANCO E AZUL GOOGLE -->
     <div id="view-indice" class="view-section">
         <div class="section-title">Escrituras Hebraico-Aramaicas</div>
         <div class="bible-grid" id="grid-hebraicas"></div>
@@ -286,7 +269,6 @@
         <div class="bible-grid" id="grid-gregas"></div>
     </div>
 
-    <!-- VISÃO 3: SELEÇÃO DE CAPÍTULOS -->
     <div id="view-livro" class="view-section">
         <button class="navigation-back" onclick="switchView('indice')">← Voltar aos Livros</button>
         <h2 id="selected-book-title" style="margin-bottom: 16px; font-size: 1.3rem;">O Livro de Gênesis</h2>
@@ -300,7 +282,6 @@
         </div>
     </div>
 
-    <!-- VISÃO 4: LEITOR DE VERSÍCULOS INTERNOS -->
     <div id="view-leitor" class="view-section">
         <button class="navigation-back" id="btn-voltar-capitulos">← Voltar aos Capítulos</button>
         <h2 id="leitor-titulo-capitulo" style="margin-bottom: 20px; font-size: 1.3rem; color: var(--azul-google);">Gênesis 1</h2>
@@ -311,6 +292,77 @@
 <script>
     // Variáveis globais para controlar o estado do livro ativo
     let livroAtualObjeto = null;
+
+    // Objeto de mapeamento: configure aqui a página exata em que cada livro começa no seu PDF institucional
+    // Exemplo: se no seu PDF o livro de Êxodo começa na página 48, mude "exodo": 1 para "exodo": 48.
+    const paginaInicialDoLivro = {
+        "genesis": 1,
+        "exodo": 1,
+        "levitico": 1,
+        "numeros": 1,
+        "deuteronomio": 1,
+        "josue": 1,
+        "juizes": 1,
+        "rute": 1,
+        "1samuel": 1,
+        "2samuel": 1,
+        "1reis": 1,
+        "2reis": 1,
+        "1cronicas": 1,
+        "2cronicas": 1,
+        "esdras": 1,
+        "neemias": 1,
+        "ester": 1,
+        "jo": 1,
+        "salmos": 1,
+        "proverbios": 1,
+        "eclesiastes": 1,
+        "cantico": 1,
+        "isaias": 1,
+        "jeremias": 1,
+        "lamentacoes": 1,
+        "ezequiel": 1,
+        "daniel": 1,
+        "oseias": 1,
+        "joel": 1,
+        "amos": 1,
+        "obadias": 1,
+        "jonas": 1,
+        "miqueias": 1,
+        "naum": 1,
+        "habacuque": 1,
+        "sofonias": 1,
+        "ageu": 1,
+        "zacarias": 1,
+        "malaquias": 1,
+        "mateus": 1,
+        "marcos": 1,
+        "lucas": 1,
+        "joao": 1,
+        "atos": 1,
+        "romanos": 1,
+        "1corintios": 1,
+        "2corintios": 1,
+        "galatas": 1,
+        "efesios": 1,
+        "filipenses": 1,
+        "colossenses": 1,
+        "1tessalonicenses": 1,
+        "2tessalonicenses": 1,
+        "1timoteo": 1,
+        "2timoteo": 1,
+        "tito": 1,
+        "filemon": 1,
+        "hebreus": 1,
+        "tiago": 1,
+        "1pedro": 1,
+        "2pedro": 1,
+        "1joao": 1,
+        "2joao": 1,
+        "3joao": 1,
+        "judas": 1,
+        "apocalipse": 1
+    };
 
     // Coleção completa dos 39 Livros das Escrituras Hebraico-Aramaicas
     const livrosHebraicas = [
@@ -393,7 +445,7 @@
     }
 
     // Carrega assincronamente o arquivo perguntas.json localizado na pasta data/
-    function carregarPerguntasJSON() {
+   function carregarPerguntasJSON() {
         const container = document.getElementById('questions-container');
         fetch('data/perguntas.json')
             .then(response => {
@@ -477,40 +529,38 @@
         switchView('livro');
     }
 
-    // Carrega dinamicamente os versículos do JSON correspondente de dentro de data/livros/
+    // Carrega dinamicamente o leitor embutido apontando para a página calculada do PDF
     function carregarCapitulo(numeroCapitulo) {
         document.getElementById('leitor-titulo-capitulo').innerText = `${livroAtualObjeto.nome} ${numeroCapitulo}`;
         const versesContent = document.getElementById('verses-content');
-        versesContent.innerHTML = `<div style="color: var(--text-secondary);">Carregando versículos...</div>`;
         
-        // Define o botão voltar da Visão 4 para retornar com segurança à Visão 3 do respectivo livro
+        // Retorna com segurança à listagem de capítulos do livro ativo
         document.getElementById('btn-voltar-capitulos').onclick = () => switchView('livro');
 
-        fetch(`data/livros/${livroAtualObjeto.arquivo}.json`)
-            .then(response => {
-                if (!response.ok) throw new Error('Arquivo de texto não encontrado');
-                return response.json();
-            })
-            .then(dadosLivro => {
-                // Procura o capítulo dentro do arquivo JSON estruturado
-            const capituloData = dadosLivro.capitulos[numeroCapitulo];
-                if (capituloData && capituloData.length > 0) {
-                    versesContent.innerHTML = capituloData.map(v => `
-                        <div class="verse-row">
-                            <span class="verse-number">${v.v}</span>${v.texto}
-                        </div>
-                    `).join('');
-                } else {
-                    versesContent.innerHTML = `<div style="color: var(--text-secondary);">Capítulo não encontrado neste arquivo.</div>`;
-                }
-            })
-            .catch(error => {
-                console.log(error);
-                versesContent.innerHTML = `
-                    <div style="color: var(--text-secondary); font-size: 0.95rem; line-height: 1.5;">
-                        O arquivo <strong>data/livros/${livroAtualObjeto.arquivo}.json</strong> ainda não foi criado ou está vazio no seu repositório.
-                    </div>`;
-            });
+        // Pega a página base mapeada para o livro atual (padrão é 1 se não configurado)
+        const paginaBase = paginaInicialDoLivro[livroAtualObjeto.arquivo] || 1;
+        
+        // Cálculo sequencial: Avança as páginas de acordo com o número do capítulo selecionado
+        const paginaAlvo = paginaBase + (numeroCapitulo - 1);
+
+        // Caminho do arquivo PDF unificado na raiz do seu repositório
+        const caminhoPDF = "biblia.pdf"; 
+
+        // Injeta o visualizador de PDF mantendo todo o estilo visual limpo do aplicativo
+        versesContent.innerHTML = `
+            <div style="width: 100%; height: 68vh; border-radius: 8px; overflow: hidden; border: 1px solid var(--border-color); box-shadow: 0 2px 8px rgba(0,0,0,0.05); background-color: #f1f3f4;">
+                <iframe 
+                    src="${caminhoPDF}#page=${paginaAlvo}&zoom=100" 
+                    width="100%" 
+                    height="100%" 
+                    style="border: none;"
+                    allow="autoplay">
+                </iframe>
+            </div>
+            <div style="text-align: center; margin-top: 8px; font-size: 0.85rem; color: var(--text-secondary); font-weight: 500;">
+                Exibindo página ${paginaAlvo} do documento digital.
+            </div>
+        `;
 
         switchView('leitor');
     }
@@ -518,4 +568,4 @@
     window.onload = init;
 </script>
 </body>
-</html>    
+</html> 
