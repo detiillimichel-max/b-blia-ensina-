@@ -287,16 +287,50 @@
         { id: 5, q: "Qual é o objetivo de Deus para a Terra?", a: "Transformar a Terra em um paraíso onde os justos viverão para sempre (Salmo 37:29)." }
     ];
 
-    // Estrutura inicial para renderizar a grade
+    // Coleção completa dos 39 Livros das Escrituras Hebraico-Aramaicas
     const livrosHebraicas = [
         { abr: "Gên", nome: "Gênesis", caps: 50, resumo: { 1: "Criação dos céus e da terra", 2: "O jardim do Éden" } },
         { abr: "Êx", nome: "Êxodo", caps: 40, resumo: { 1: "Aflição no Egito", 2: "Moisés é salvo" } },
         { abr: "Le", nome: "Levítico", caps: 27, resumo: { 1: "Oferta queimada", 2: "Oferta de cereais" } },
         { abr: "Núm", nome: "Números", caps: 36, resumo: {} },
         { abr: "De", nome: "Deuteronômio", caps: 34, resumo: {} },
-        { abr: "Jos", nome: "Josué", caps: 24, resumo: {} }
+        { abr: "Jos", nome: "Josué", caps: 24, resumo: {} },
+        { abr: "Jui", nome: "Juízes", caps: 21, resumo: {} },
+        { abr: "Rut", nome: "Rute", caps: 4, resumo: {} },
+        { abr: "1Sa", nome: "1 Samuel", caps: 31, resumo: {} },
+        { abr: "2Sa", nome: "2 Samuel", caps: 24, resumo: {} },
+        { abr: "1Re", nome: "1 Reis", caps: 22, resumo: {} },
+        { abr: "2Re", nome: "2 Reis", caps: 25, resumo: {} },
+        { abr: "1Cr", nome: "1 Crônicas", caps: 29, resumo: {} },
+        { abr: "2Cr", nome: "2 Crônicas", caps: 36, resumo: {} },
+        { abr: "Esd", nome: "Esdras", caps: 10, resumo: {} },
+        { abr: "Ne", nome: "Neemias", caps: 13, resumo: {} },
+        { abr: "Est", nome: "Ester", caps: 10, resumo: {} },
+        { abr: "Jó", nome: "Jó", caps: 42, resumo: {} },
+        { abr: "Sal", nome: "Salmos", caps: 150, resumo: {} },
+        { abr: "Pro", nome: "Provérbios", caps: 31, resumo: {} },
+        { abr: "Ec", nome: "Eclesiastes", caps: 12, resumo: {} },
+        { abr: "Cân", nome: "Cântico de Salomão", caps: 8, resumo: {} },
+        { abr: "Isa", nome: "Isaías", caps: 66, resumo: {} },
+        { abr: "Jer", nome: "Jeremias", caps: 52, resumo: {} },
+        { abr: "Lam", nome: "Lamentações", caps: 5, resumo: {} },
+        { abr: "Eze", nome: "Ezequiel", caps: 48, resumo: {} },
+        { abr: "Dan", nome: "Daniel", caps: 12, resumo: {} },
+        { abr: "Os", nome: "Oseias", caps: 14, resumo: {} },
+        { abr: "Jl", nome: "Joel", caps: 3, resumo: {} },
+        { abr: "Am", nome: "Amós", caps: 9, resumo: {} },
+        { abr: "Ob", nome: "Obadias", caps: 1, resumo: {} },
+        { abr: "Jon", nome: "Jonas", caps: 4, resumo: {} },
+        { abr: "Mi", nome: "Miqueias", caps: 7, resumo: {} },
+        { abr: "Na", nome: "Naum", caps: 3, resumo: {} },
+        { abr: "Hab", nome: "Habacuque", caps: 3, resumo: {} },
+        { abr: "Sof", nome: "Sofonias", caps: 3, resumo: {} },
+        { abr: "Ag", nome: "Ageu", caps: 2, resumo: {} },
+        { abr: "Za", nome: "Zacarias", caps: 14, resumo: {} },
+        { abr: "Mal", nome: "Malaquias", caps: 4, resumo: {} }
     ];
 
+    // Coleção completa dos 27 Livros das Escrituras Gregas Cristãs
     const livrosGregas = [
         { abr: "Mt", nome: "Mateus", caps: 28, resumo: { 1: "Genealogia de Jesus", 2: "Visita dos astrólogos" } },
         { abr: "Mr", nome: "Marcos", caps: 16, resumo: {} },
@@ -304,13 +338,33 @@
         { abr: "Jo", nome: "João", caps: 21, resumo: {} },
         { abr: "At", nome: "Atos", caps: 28, resumo: {} },
         { abr: "Ro", nome: "Romanos", caps: 16, resumo: {} },
+        { abr: "1Co", nome: "1 Coríntios", caps: 16, resumo: {} },
+        { abr: "2Co", nome: "2 Coríntios", caps: 13, resumo: {} },
+        { abr: "Gá", nome: "Gálatas", caps: 6, resumo: {} },
+        { abr: "Ef", nome: "Efésios", caps: 6, resumo: {} },
+        { abr: "Fil", nome: "Filipenses", caps: 4, resumo: {} },
+        { abr: "Col", nome: "Colossenses", caps: 4, resumo: {} },
+        { abr: "1Te", nome: "1 Tessalonicenses", caps: 5, resumo: {} },
+        { abr: "2Te", nome: "2 Tessalonicenses", caps: 3, resumo: {} },
+        { abr: "1Ti", nome: "1 Timóteo", caps: 6, resumo: {} },
+        { abr: "2Ti", nome: "2 Timóteo", caps: 4, resumo: {} },
+        { abr: "Tit", nome: "Tito", caps: 3, resumo: {} },
+        { abr: "Fm", nome: "Filêmon", caps: 1, resumo: {} },
+        { abr: "Heb", nome: "Hebreus", caps: 13, resumo: {} },
+        { abr: "Tia", nome: "Tiago", caps: 5, resumo: {} },
+        { abr: "1Pe", nome: "1 Pedro", caps: 5, resumo: {} },
+        { abr: "2Pe", nome: "2 Pedro", caps: 3, resumo: {} },
+        { abr: "1Jo", nome: "1 João", caps: 5, resumo: {} },
+        { abr: "2Jo", nome: "2 João", caps: 1, resumo: {} },
+        { abr: "3Jo", nome: "3 João", caps: 1, resumo: {} },
+        { abr: "Jud", nome: "Judas", caps: 1, resumo: {} },
         { abr: "Ap", nome: "Apocalipse", caps: 22, resumo: { 1: "Revelação de Jesus", 21: "Novo céu e nova terra" } }
     ];
 
     function init() {
         renderPerguntas();
-        renderGrade(livrosHebraicas, 'grid-hebraicas');
-        renderGrade(livrosGregas, 'grid-gregas');
+        renderGrade(livrosHebraicas, 'grid-hebraicas', 'hebraicas');
+        renderGrade(livrosGregas, 'grid-gregas', 'gregas');
     }
 
     function renderPerguntas() {
@@ -327,10 +381,10 @@
         element.classList.toggle('open');
     }
 
-    function renderGrade(livros, targetId) {
+    function renderGrade(livros, targetId, tipo) {
         const grid = document.getElementById(targetId);
-        grid.innerHTML = livros.map(livro => `
-            <div class="grid-item" onclick="openBook('${encodeURIComponent(JSON.stringify(livro))}')">${livro.abr}</div>
+        grid.innerHTML = livros.map((livro, index) => `
+            <div class="grid-item" onclick="openBook('${tipo}', ${index})">${livro.abr}</div>
         `).join('');
     }
 
@@ -354,8 +408,8 @@
         }
     }
 
-    function openBook(livroDataJson) {
-        const libro = JSON.parse(decodeURIComponent(livroDataJson));
+    function openBook(tipo, index) {
+        const libro = tipo === 'hebraicas' ? livrosHebraicas[index] : livrosGregas[index];
         document.getElementById('selected-book-title').innerText = `O Livro de ${libro.nome}`;
         
         const capsGrid = document.getElementById('book-chapters-grid');
@@ -368,7 +422,7 @@
         }
 
         const summaryContent = document.getElementById('book-summary-content');
-        if (Object.keys(libro.resumo).length > 0) {
+        if (libro.resumo && Object.keys(libro.resumo).length > 0) {
             summaryContent.innerHTML = Object.entries(libro.resumo).map(([cap, text]) => `
                 <div class="summary-item">
                     <span class="summary-num">${cap}</span> ${text}
